@@ -27,6 +27,11 @@ export const metadata: Metadata = {
   title: 'HYOSS_ART - Galería de Arte',
   description: 'Descubre y adquiere obras únicas de Yosmar Hernández. Catálogo curado de pinturas, abstracciones y arte moderno.',
   keywords: ['arte', 'galería', 'pintura', 'comprar arte'],
+  icons: {
+    icon: [
+      { url: '/images/logo.png', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({
