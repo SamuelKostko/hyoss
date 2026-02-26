@@ -1,7 +1,7 @@
 import { CartItem } from './cart-store';
 
 export function generateWhatsAppMessage(items: CartItem[], totalPrice: number): string {
-  const businessPhone = '584123580995'; // Reemplazar con el número real
+  const businessPhone = '584140938770'; // Reemplazar con el número real
   
   let message = '🎨 *Consulta de Arte*\n\n';
   message += 'Hola! Me interesan las siguientes obras:\n\n';
