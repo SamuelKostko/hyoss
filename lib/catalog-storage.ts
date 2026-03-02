@@ -1,9 +1,15 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import type { Artwork } from '@/lib/art-data';
+import { list, put } from '@vercel/blob';
 
 const CATALOG_DIRNAME = 'data';
 const CATALOG_FILENAME = 'catalog.json';
+const CATALOG_BLOB_PATH = `${CATALOG_DIRNAME}/${CATALOG_FILENAME}`;
+
+function shouldUseBlobStorage(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
 
 function getCatalogPath(): string {
   return path.join(process.cwd(), CATALOG_DIRNAME, CATALOG_FILENAME);
@@ -27,7 +33,44 @@ async function ensureCatalogFile(): Promise<void> {
   await fs.writeFile(catalogPath, JSON.stringify([], null, 2), 'utf8');
 }
 
+async function ensureCatalogBlob(): Promise<string> {
+  const existing = await list({ prefix: CATALOG_BLOB_PATH });
+  const exact = existing.blobs.find((b) => b.pathname === CATALOG_BLOB_PATH);
+  if (exact?.url) return exact.url;
+
+  const created = await put(CATALOG_BLOB_PATH, JSON.stringify([], null, 2), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+  });
+  return created.url;
+}
+
+async function readCatalogFromBlob(): Promise<Artwork[]> {
+  const url = await ensureCatalogBlob();
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) return [];
+  try {
+    const parsed = (await response.json()) as unknown;
+    return Array.isArray(parsed) ? (parsed as Artwork[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writeCatalogToBlob(artworks: Artwork[]): Promise<void> {
+  await put(CATALOG_BLOB_PATH, JSON.stringify(artworks, null, 2), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+  });
+}
+
 export async function readCatalog(): Promise<Artwork[]> {
+  if (shouldUseBlobStorage()) {
+    return readCatalogFromBlob();
+  }
+
   const catalogPath = getCatalogPath();
   await ensureCatalogFile();
 
@@ -42,6 +85,11 @@ export async function readCatalog(): Promise<Artwork[]> {
 }
 
 export async function writeCatalog(artworks: Artwork[]): Promise<void> {
+  if (shouldUseBlobStorage()) {
+    await writeCatalogToBlob(artworks);
+    return;
+  }
+
   const catalogPath = getCatalogPath();
   await fs.mkdir(path.dirname(catalogPath), { recursive: true });
 
