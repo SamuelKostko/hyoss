@@ -188,7 +188,7 @@ export default function ArtGallery() {
         .replace(/[^a-z0-9._-]+/g, '_')
         .slice(0, 120);
 
-      const pathname = `artworks/${crypto.randomUUID()}-${safeName}`;
+      const pathname = `uploads/${crypto.randomUUID()}-${safeName}`;
 
       const blob = await upload(pathname, file, {
         access: 'public',
