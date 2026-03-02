@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import ArtCard from './ArtCard';
 import FilterSidebar from './FilterSidebar';
 import type { Artwork } from '@/lib/art-data';
+import { upload } from '@vercel/blob/client';
 
 type ArtworkDraft = Partial<Artwork> & {
   dimensions?: Partial<Artwork['dimensions']>;
@@ -162,22 +163,20 @@ export default function ArtGallery() {
     setUploadError(null);
     setIsUploadingImage(true);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const safeName = (file.name || 'image')
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]+/g, '_')
+        .slice(0, 120);
 
-      const response = await fetch('/api/uploads', {
-        method: 'POST',
-        body: formData,
+      const pathname = `artworks/${crypto.randomUUID()}-${safeName}`;
+
+      const blob = await upload(pathname, file, {
+        access: 'public',
+        handleUploadUrl: '/api/uploads',
       });
 
-      if (!response.ok) {
-        setUploadError('No se pudo subir la imagen.');
-        return;
-      }
-
-      const data = (await response.json()) as { url?: string };
-      if (data?.url) {
-        setDraft((d) => ({ ...d, image: data.url }));
+      if (blob?.url) {
+        setDraft((d) => ({ ...d, image: blob.url }));
       } else {
         setUploadError('Respuesta inválida al subir la imagen.');
       }

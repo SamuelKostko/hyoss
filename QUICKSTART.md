@@ -83,6 +83,20 @@ Archivo: `lib/art-data.ts`
 }
 ```
 
+### Subir imágenes (panel admin)
+
+La app usa **Vercel Blob** para subir imágenes desde el panel de administración.
+
+1. Crea/activa Blob en tu proyecto de Vercel.
+2. En local, crea `BLOB_READ_WRITE_TOKEN` en tu `.env.local`.
+
+```env
+ADMIN_PASSWORD=una_contraseña_segura
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxx
+```
+
+Luego entra a `/admin`, habilita modo admin, y sube la imagen: se guardará como una URL pública de Blob.
+
 ### Cambiar Colores
 Archivo: `tailwind.config.ts`
 

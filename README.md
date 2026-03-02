@@ -155,6 +155,19 @@ Para configurar el checkout de WhatsApp, edita `/lib/checkout-utils.ts`:
 const businessPhone = 'TU_NUMERO_AQUI'; // Formato: código de país + número (ej: 14155551234)
 ```
 
+### Subida de imágenes (Vercel Blob)
+
+El panel admin sube imágenes usando **subida directa a Vercel Blob** (no escribe en `public/uploads`).
+
+Variables necesarias:
+
+```env
+ADMIN_PASSWORD=una_contraseña_segura
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxx
+```
+
+Sin `BLOB_READ_WRITE_TOKEN`, la subida de imágenes desde el admin no funcionará.
+
 ### Stripe (Opcional)
 Para integrar Stripe como método de pago alternativo:
 

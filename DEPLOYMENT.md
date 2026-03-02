@@ -183,6 +183,13 @@ Configura en tu plataforma de hosting:
 # WhatsApp Business
 NEXT_PUBLIC_WHATSAPP_NUMBER=14155551234
 
+# Admin (opcional, recomendado)
+ADMIN_PASSWORD=una_contraseña_segura
+
+# Vercel Blob (necesario para subir imágenes desde el panel admin)
+# En Vercel: Storage -> Blob -> Connect, y luego copia el token de Read/Write.
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxx
+
 # Stripe (si se implementa)
 NEXT_PUBLIC_STRIPE_PUBLIC_KEY=pk_live_xxx
 STRIPE_SECRET_KEY=sk_live_xxx
@@ -190,6 +197,11 @@ STRIPE_SECRET_KEY=sk_live_xxx
 # Analytics (opcional)
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
+
+#### Notas sobre subida de imágenes
+
+- La ruta `/api/uploads` genera un token para subida directa a Vercel Blob (el archivo no pasa por tu función), así evitas el límite de tamaño típico de requests en serverless.
+- Si `BLOB_READ_WRITE_TOKEN` no está configurado, la subida de imágenes fallará.
 
 ### 3. Configuración de Caché
 
