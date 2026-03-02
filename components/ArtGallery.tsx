@@ -39,6 +39,16 @@ function normalizeDraft(draft: ArtworkDraft): ArtworkDraft {
   };
 }
 
+async function readApiErrorMessage(response: Response): Promise<string | null> {
+  try {
+    const data = (await response.json()) as { error?: unknown };
+    const message = typeof data?.error === 'string' ? data.error.trim() : '';
+    return message || null;
+  } catch {
+    return null;
+  }
+}
+
 export default function ArtGallery() {
   const [adminMode, setAdminMode] = useState(false);
 
@@ -149,11 +159,21 @@ export default function ArtGallery() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const apiMessage = await readApiErrorMessage(response);
+        if (response.status === 401) {
+          throw new Error('No autorizado. Inicia sesión en /admin y vuelve a intentar.');
+        }
+
+        throw new Error(apiMessage ?? `No se pudo guardar el producto (HTTP ${response.status}).`);
       }
 
       await refreshCatalog();
       resetDraft();
+
+      window.alert(isEdit ? 'Producto actualizado con éxito.' : 'Producto creado con éxito.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo guardar el producto.';
+      window.alert(message);
     } finally {
       setIsSaving(false);
     }
